@@ -4,6 +4,8 @@ const apiPath = '2023-js-live';
 // 抓取 DOM
 const productList = document.querySelector('.productWrap');
 const cartsTable = document.querySelector('.shoppingCart-table');
+const orderBtn = document.querySelector('.orderInfo-btn');
+const orderInfo = document.querySelectorAll('.orderInfo-input');
 
 let cartsObj = {};
 
@@ -27,11 +29,8 @@ function getCarts() {
       renderCarts(carts, finalTotal);
       // 儲存購物車 id
       carts.forEach((e) => {
-        console.log(e);
         cartsObj[e.product.id] = e.quantity;
       });
-      console.log(cartsObj);
-      listenAddCardBtns();
     })
     .catch((err) => err.response);
 }
@@ -108,6 +107,29 @@ function deleteProduct(id) {
     .catch((err) => err.response);
 }
 
+// 新增訂單
+orderBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  let obj = { data: { user: {} } };
+  orderInfo.forEach((ele) => {
+    obj.data.user[ele.name] = ele.value;
+  });
+  console.log(obj);
+  postOrder(obj);
+});
+// Post 訂單
+function postOrder(orderInfo) {
+  axios
+    .post(`${baseUrl}customer/${apiPath}/orders`, orderInfo)
+    .then(() => {
+      alert('訂單新增成功！');
+      document.querySelector('.orderInfo-form').reset();
+    })
+    .catch((err) => {
+      alert(err.response.data.message);
+    });
+}
+
 // 渲染產品列表
 function renderProducts(data) {
   let content = '';
@@ -125,6 +147,7 @@ function renderProducts(data) {
     </li>`;
   });
   productList.innerHTML = content;
+  listenAddCardBtns();
 }
 // 渲染購物車
 function renderCarts(data, total) {
