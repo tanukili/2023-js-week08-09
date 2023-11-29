@@ -6,8 +6,11 @@ const productList = document.querySelector('.productWrap');
 const cartsTable = document.querySelector('.shoppingCart-table');
 const orderBtn = document.querySelector('.orderInfo-btn');
 const orderInfo = document.querySelectorAll('.orderInfo-input');
-
+const productSort = document.querySelector('.productSelect');
+// 紀錄購物車狀態(累加用)
 let cartsObj = {};
+// 紀錄產品資料(篩選用)
+let productsArr = [];
 
 // GET 產品
 function getProducts() {
@@ -15,6 +18,7 @@ function getProducts() {
     .get(`${baseUrl}customer/${apiPath}/products`)
     .then((res) => {
       const products = res.data.products;
+      productsArr = products;
       renderProducts(products);
     })
     .catch((err) => err.response);
@@ -43,7 +47,7 @@ function listenAddCardBtns() {
     ele.addEventListener('click', (e) => {
       e.preventDefault();
       // 取出存在標籤中的 id
-      const productId = ele.parentElement.getAttribute('id');
+      const productId = ele.parentElement.getAttribute('data-id');
       // 新增或累加
       const productInCarts = cartsObj[productId];
       productInCarts
@@ -64,7 +68,11 @@ function addProdcut(id, addedQty = 0) {
     .post(`${baseUrl}customer/${apiPath}/carts`, obj)
     .then((res) => {
       alert('新增成功！');
-      renderCarts(res.data.carts, res.data.finalTotal);
+      const carts = res.data.carts;
+      carts.forEach((e) => {
+        cartsObj[e.product.id] = e.quantity;
+      });
+      renderCarts(carts, res.data.finalTotal);
     })
     .catch((err) => err.response);
 }
@@ -92,6 +100,7 @@ function deleteProducts() {
     .delete(`${baseUrl}customer/${apiPath}/carts`)
     .then((res) => {
       alert(res.data.message);
+      cartsObj = {};
       renderCarts(res.data.carts, res.data.finalTotal);
     })
     .catch((err) => err.response);
@@ -102,7 +111,12 @@ function deleteProduct(id) {
     .delete(`${baseUrl}customer/${apiPath}/carts/${id}`)
     .then((res) => {
       alert('品項刪除成功！');
-      renderCarts(res.data.carts, res.data.finalTotal);
+      const carts = res.data.carts;
+      cartsObj = {};
+      carts.forEach((e) => {
+        cartsObj[e.product.id] = e.quantity;
+      });
+      renderCarts(carts, res.data.finalTotal);
     })
     .catch((err) => err.response);
 }
@@ -114,7 +128,6 @@ orderBtn.addEventListener('click', (e) => {
   orderInfo.forEach((ele) => {
     obj.data.user[ele.name] = ele.value;
   });
-  console.log(obj);
   postOrder(obj);
 });
 // Post 訂單
@@ -134,7 +147,7 @@ function postOrder(orderInfo) {
 function renderProducts(data) {
   let content = '';
   data.forEach((e) => {
-    content += `<li class="productCard" id="${e.id}">
+    content += `<li class="productCard" data-id="${e.id}">
       <h4 class="productType">新品</h4>
       <img
       src="${e.images}"
@@ -191,3 +204,12 @@ function renderCarts(data, total) {
 
 getProducts();
 getCarts();
+
+// 篩選功能
+productSort.addEventListener('change', (e) => {
+  const nowCategory = e.target.value;
+  if (nowCategory !== '全部') {
+    const sortedArr = productsArr.filter((e) => e.category === nowCategory);
+    renderProducts(sortedArr);
+  }
+});
