@@ -20,7 +20,7 @@ function getOrders() {
     .catch((err) => err.response);
 }
 
-/* 修改訂單狀態 */
+/* --- 修改訂單狀態 --- */
 function listenOrdersStatus() {
   const ordersStatus = document.querySelectorAll('.orderStatus');
   ordersStatus.forEach((ele) => {
@@ -36,7 +36,6 @@ function listenOrdersStatus() {
 }
 // Put order
 function putOrderStatus(id, paid) {
-  console.log('ok');
   const obj = {
     data: {
       id,
@@ -52,11 +51,12 @@ function putOrderStatus(id, paid) {
     .catch((err) => err.response);
 }
 
-/* 刪除相關 */
+/* --- 刪除相關 --- */
 discardAllBtn.addEventListener('click', (e) => {
   e.preventDefault();
   deleteAllOrders();
 });
+
 // Delete 全部
 function deleteAllOrders() {
   axios
@@ -69,6 +69,7 @@ function deleteAllOrders() {
     })
     .catch((err) => err.response);
 }
+
 // 監聽單一刪除按鈕
 function listenDelSingleOrderBtn() {
   const DelSingleOrderBtn = document.querySelectorAll('.delSingleOrder-Btn');
@@ -80,7 +81,7 @@ function listenDelSingleOrderBtn() {
     });
   });
 }
-// Delete 單一訂單
+
 function deleteOrder(id) {
   axios
     .delete(`${baseUrl}admin/${apiPath}/orders/${id}`, config)
@@ -93,6 +94,7 @@ function deleteOrder(id) {
     .catch((err) => err.response);
 }
 
+/* --- 渲染 --- */
 function renderOrders(data) {
   let content = '';
   data.forEach((e) => {
@@ -129,7 +131,7 @@ function renderOrders(data) {
 
 getOrders();
 
-/* 圖表相關 */
+/* --- 圖表相關 --- */
 function filterToChart(data) {
   console.log(data);
   // 品項與累計營收

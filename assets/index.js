@@ -3,7 +3,7 @@ const apiPath = '2023-js-live';
 
 // 抓取 DOM
 const productList = document.querySelector('.productWrap');
-const cartsTable = document.querySelector('.shoppingCart-table');
+const cartsTable = document.querySelector('.shoppingCart-table tbody');
 const orderBtn = document.querySelector('.orderInfo-btn');
 const orderInfo = document.querySelectorAll('.orderInfo-input');
 const productSort = document.querySelector('.productSelect');
@@ -12,7 +12,7 @@ let cartsObj = {};
 // 紀錄產品資料(篩選用)
 let productsArr = [];
 
-// GET 產品
+/* --- 取得資料 --- */
 function getProducts() {
   axios
     .get(`${baseUrl}customer/${apiPath}/products`)
@@ -23,7 +23,7 @@ function getProducts() {
     })
     .catch((err) => err.response);
 }
-// GET 購物車
+
 function getCarts() {
   axios
     .get(`${baseUrl}customer/${apiPath}/carts`)
@@ -39,6 +39,8 @@ function getCarts() {
     .catch((err) => err.response);
 }
 
+/* --- 產品相關 --- */
+// 監聽按鈕
 function listenAddCardBtns() {
   // 產品列表未生成前會抓取不到
   const addCardBtn = document.querySelectorAll('.addCardBtn');
@@ -56,7 +58,7 @@ function listenAddCardBtns() {
     });
   });
 }
-// Post 產品
+
 function addProdcut(id, addedQty = 0) {
   const obj = {
     data: {
@@ -77,11 +79,13 @@ function addProdcut(id, addedQty = 0) {
     .catch((err) => err.response);
 }
 
+/* --- 刪除相關 --- */
+// 監聽按鈕
 function listenDeleteBtns() {
   const discardAllBtn = document.querySelector('.discardAllBtn');
   discardAllBtn.addEventListener('click', (e) => {
     e.preventDefault();
-    deleteProducts();
+    deleteAllProducts();
   });
   const discardBtn = document.querySelectorAll('.discardBtn');
   discardBtn.forEach((ele) => {
@@ -94,8 +98,8 @@ function listenDeleteBtns() {
     });
   });
 }
-// Delete 全部產品
-function deleteProducts() {
+// Delete 全部
+function deleteAllProducts() {
   axios
     .delete(`${baseUrl}customer/${apiPath}/carts`)
     .then((res) => {
@@ -103,9 +107,11 @@ function deleteProducts() {
       cartsObj = {};
       renderCarts(res.data.carts, res.data.finalTotal);
     })
-    .catch((err) => err.response);
+    .catch((err) => {
+      alert(err.response.data.message);
+    });
 }
-// Delete 產品
+
 function deleteProduct(id) {
   axios
     .delete(`${baseUrl}customer/${apiPath}/carts/${id}`)
@@ -121,28 +127,38 @@ function deleteProduct(id) {
     .catch((err) => err.response);
 }
 
-// 新增訂單
+/* --- 訂單相關 --- */
+// 監聽按鈕
 orderBtn.addEventListener('click', (e) => {
   e.preventDefault();
   let obj = { data: { user: {} } };
   orderInfo.forEach((ele) => {
+    if (!ele.value) {
+      const message = ele.nextElementSibling.getAttribute('data-message');
+      ele.nextElementSibling.textContent = `${message} 為必填`;
+    } else {
+      ele.nextElementSibling.textContent = '';
+    }
     obj.data.user[ele.name] = ele.value;
   });
   postOrder(obj);
 });
-// Post 訂單
+
 function postOrder(orderInfo) {
   axios
     .post(`${baseUrl}customer/${apiPath}/orders`, orderInfo)
     .then(() => {
       alert('訂單新增成功！');
       document.querySelector('.orderInfo-form').reset();
+      cartsObj = {};
+      renderCarts([], 0);
     })
     .catch((err) => {
       alert(err.response.data.message);
     });
 }
 
+/* --- 渲染 --- */
 // 渲染產品列表
 function renderProducts(data) {
   let content = '';
@@ -179,13 +195,11 @@ function renderCarts(data, total) {
     <a href="#" class="material-icons"> clear </a>
   </td></tr>`;
   });
-  const cartsTemplate = `<tr>
-    <th width="40%">品項</th>
-    <th width="15%">單價</th>
-    <th width="15%">數量</th>
-    <th width="15%">金額</th>
-    <th width="15%"></th>
-  </tr>
+
+  if (!data.length) {
+    content = '<td><p>目前購物車沒有商品</p></td>';
+  }
+  const cartsTemplate = `
   ${content}
   <tr>
     <td>
@@ -205,11 +219,13 @@ function renderCarts(data, total) {
 getProducts();
 getCarts();
 
-// 篩選功能
+/* --- 篩選功能 --- */
 productSort.addEventListener('change', (e) => {
   const nowCategory = e.target.value;
   if (nowCategory !== '全部') {
     const sortedArr = productsArr.filter((e) => e.category === nowCategory);
     renderProducts(sortedArr);
+  } else {
+    renderProducts(productsArr);
   }
 });

@@ -283,7 +283,18 @@
     <section class="shoppingCart">
       <h3 class="section-title">我的購物車</h3>
       <div class="overflowWrap">
-        <table class="shoppingCart-table"></table>
+        <table class="shoppingCart-table">
+          <thead>
+            <tr>
+              <th width="40%">品項</th>
+              <th width="15%">單價</th>
+              <th width="15%">數量</th>
+              <th width="15%">金額</th>
+              <th width="15%"></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
       </div>
     </section>
     <section class="orderInfo wrap" id="orderInfo">
@@ -298,8 +309,9 @@
               id="customerName"
               placeholder="請輸入姓名"
               name="name"
+              required
             />
-            <p class="orderInfo-message" data-message="姓名">必填</p>
+            <p class="orderInfo-message" data-message="姓名"></p>
           </div>
         </div>
         <div class="orderInfo-formGroup">
@@ -311,8 +323,9 @@
               id="customerPhone"
               placeholder="請輸入電話"
               name="tel"
+              required
             />
-            <p class="orderInfo-message" data-message="電話">必填</p>
+            <p class="orderInfo-message" data-message="電話"></p>
           </div>
         </div>
         <div class="orderInfo-formGroup">
@@ -324,8 +337,9 @@
               id="customerEmail"
               placeholder="請輸入 Email"
               name="email"
+              required
             />
-            <p class="orderInfo-message" data-message="Email">必填</p>
+            <p class="orderInfo-message" data-message="Email"></p>
           </div>
         </div>
         <div class="orderInfo-formGroup">
@@ -337,8 +351,9 @@
               id="customerAddress"
               placeholder="請輸入寄送地址"
               name="address"
+              required
             />
-            <p class="orderInfo-message" data-message="寄送地址">必填</p>
+            <p class="orderInfo-message" data-message="寄送地址"></p>
           </div>
         </div>
         <div class="orderInfo-formGroup">
